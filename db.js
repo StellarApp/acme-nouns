@@ -15,7 +15,7 @@ const People = conn.define("people", {
   }
 });
 
-const Place = conn.define("places", {
+const Places = conn.define("places", {
   id: {
     type: UUID,
     primaryKey: true,
@@ -41,8 +41,8 @@ const Things = conn.define("things", {
   }
 });
 
-People.belongsTo(Place);
-Place.hasMany(People);
+People.belongsTo(Places);
+Places.hasMany(People);
 
 Things.belongsTo(People);
 People.hasMany(Things);
@@ -50,28 +50,45 @@ People.hasMany(Things);
 const syncAndSeed = async () => {
   await conn.sync({ force: true });
 
-  const places = [{ name: "New York" }, { name: "New Jersey" }];
-  const [pl1, pl2] = await Promise.all(
-    places.map(place => {
-      Place.create(place);
-    })
-  );
+  // const places = [{ name: "New York" }, { name: "New Jersey" }];
   const things = [{ name: "pen" }, { name: "car" }, { name: "house" }];
-  const [t1, t2, t3] = await Promise.all(
-    things.map(thing => {
-      Things.create(thing);
-    })
-  );
-  const peoples = [
-    { name: "Stella", placesId: p1.id, thingsId: t2 },
-    { name: "Palak", placesId: p2.id, thingsId: t1 }
-  ];
+  // const people = [{ name: "Stella" }, { name: "Palak" }, {name: "Mandoo"}];
 
-  const [p1, p2] = await Promise.all(
-    peoples.map(people => {
-      People.create(people);
+  const acmePlaces = await Promise.all(
+    [Places.create({ name: "New York" }), Places.create({ name: "Texas" })]
+    // places.map(place => {
+    //   Places.create(place);
+    // }) // this returns 'undefined' // console.log(acmePlaces);
+  );
+
+  // console.log(acmePlaces[0].get());
+
+  const acmePeople = await Promise.all(
+    [
+      People.create({ name: "Stella", placeId: acmePlaces[1].id }),
+      People.create({ name: "Palak", placeId: acmePlaces[0].id }),
+      People.create({ name: "Mandoo", placeId: acmePlaces[1].id })
+    ]
+    // people.map((people, i) => {
+    //   People.create({ ...people, placeId: acmePlaces[i].id });
+    // })
+  );
+    // console.log(acmePeople[0].get());
+
+  await Promise.all(
+    things.map((thing, idx) => {
+      Things.create({ ...thing, personId: acmePeople[idx].id });
     })
   );
 };
 
-syncAndSeed();
+// syncAndSeed();
+
+module.exports = {
+  syncAndSeed,
+  models: {
+    Places,
+    Things,
+    People
+  }
+};
