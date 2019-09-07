@@ -57,7 +57,7 @@ const syncAndSeed = async () => {
   const acmePlaces = await Promise.all(
     [Places.create({ name: "New York" }), Places.create({ name: "Texas" })]
     // places.map(place => {
-    //   Places.create(place);
+    //   return Places.create(place);
     // }) // this returns 'undefined' // console.log(acmePlaces);
   );
 

@@ -4,7 +4,7 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
-app.use("/", async (req, res, next) => {
+app.get("/", async (req, res, next) => {
   try {
     res.sendFile(path.join(__dirname, "index.html"));
   } catch (ex) {
@@ -14,7 +14,8 @@ app.use("/", async (req, res, next) => {
 
 app.get("/api/people", async (req, res, next) => {
   try {
-    res.send(await db.models.People.findAll());
+    const result = await db.models.People.findAll();
+    res.send(result);
   } catch (ex) {
     next(ex);
   }
